@@ -1,4 +1,4 @@
-LunaOS
+
 LunaOS is an educational x86-64 kernel written in C and assembly. The project is designed for learning operating system development fundamentals: interrupt handling, memory management, device drivers, and basic user input/output.
 
 Features
@@ -26,19 +26,6 @@ PCI: Bus scanning, SATA AHCI controller detection, BAR5 reading
 
 Command Shell: Built-in commands help, clear, memory, malloc, pci
 
-Project Structure
-text
-├── kernel.c          # KernelStart entry point, shell, rendering
-├── idt.c             # Interrupt Descriptor Table, KeyboardISR, MouseISR
-├── gdt.c             # GDT loading, segment reloading
-├── pmm.c             # Physical Memory Manager (bitmap)
-├── heap.c            # Dynamic heap (malloc/free)
-├── pci.c             # PCI scanning, AHCI detection
-├── keyboard.c        # PS/2 keyboard scan code handling
-├── mouse.c           # PS/2 mouse init and packet processing
-├── font.c            # 8x16 font array + GetCharBitmap
-├── graphics.c        # Primitives: DrawRect, DrawRectOutline
-└── include/          # Header files (framebuffer.h, memory.h, io.h, pci.h)
 Running in QEMU (Example)
 bash
 # Build (depends on your toolchain)

@@ -41,37 +41,23 @@ __attribute__((interrupt)) void MouseISR(void* frame) {
 void RemapPIC() {
     uint8_t a1, a2;
 
-    // Сохраняем маски
     a1 = inb(0x21);
     a2 = inb(0xA1);
 
-    // Начало инициализации
     outb(0x20, 0x11); io_wait();
     outb(0xA0, 0x11); io_wait();
 
-    // Сдвиг векторов (Master -> 32, Slave -> 40)
-    outb(0x21, 0x20); io_wait();
-    outb(0xA1, 0x28); io_wait();
+    outb(0x21, 0x20); io_wait(); // Master -> 32
+    outb(0xA1, 0x28); io_wait(); // Slave -> 40
 
-    // Каскадирование
     outb(0x21, 0x04); io_wait();
     outb(0xA1, 0x02); io_wait();
 
-    // Режим 8086
     outb(0x21, 0x01); io_wait();
     outb(0xA1, 0x01); io_wait();
 
-    // === МАСКИ ПРЕРЫВАНИЙ ===
-    // 0 = включено, 1 = выключено
-    // Нам нужны:
-    // IRQ1 (Keyboard) -> Бит 1 на Master
-    // IRQ2 (Cascade to Slave) -> Бит 2 на Master
-    // IRQ12 (Mouse) -> Бит 4 на Slave
-    
-    // 1111 1001 = 0xF9 (Разрешаем Keyboard и Cascade)
+    // Маски: IRQ1 (Keyboard) и IRQ12 (Mouse)
     outb(0x21, 0xF9); 
-    
-    // 1110 1111 = 0xEF (Разрешаем Mouse)
     outb(0xA1, 0xEF);
 }
 
@@ -97,12 +83,11 @@ void InitIDT() {
     IDT[44].offset_high = (mouse_offset >> 32) & 0xFFFFFFFF;
     IDT[44].zero = 0;
 
-    // 3. Загрузка
     RemapPIC();
     
     idtr.limit = sizeof(IDT) - 1;
     idtr.offset = (uint64_t)&IDT;
 
     __asm__ volatile ("lidt %0" : : "m"(idtr));
-    __asm__ volatile ("sti"); // Включаем прерывания
+    __asm__ volatile ("sti");
 }

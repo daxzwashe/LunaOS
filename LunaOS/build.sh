@@ -22,11 +22,18 @@ $CC $CFLAGS -c src/kernel/graphics.c -o build/graphics.o
 $CC $CFLAGS -c src/kernel/pmm.c -o build/pmm.o
 $CC $CFLAGS -c src/kernel/heap.c -o build/heap.o
 $CC $CFLAGS -c src/kernel/pci.c -o build/pci.o
+$CC $CFLAGS -c src/kernel/timer.c -o build/timer.o
+$CC $CFLAGS -c src/kernel/apple.c -o build/apple.o
+$CC $CFLAGS -c src/kernel/badapple_data.c -o build/badapple_data.o
+$CC $CFLAGS -c src/kernel/kprint.c -o build/kprint.o
+
 
 echo ">>> LINKING <<<"
 # Линкуем всё вместе
 $LD $LDFLAGS build/main.o \
              build/kernel.o \
+             build/timer.o\
+             build/kprint.o \
              build/font.o \
              build/idt.o \
              build/keyboard.o \
@@ -36,6 +43,8 @@ $LD $LDFLAGS build/main.o \
              build/pmm.o \
              build/heap.o \
              build/pci.o \
+             build/apple.o \
+             build/badapple_data.o \
              -out:dist/EFI/BOOT/BOOTX64.EFI
 
 echo ">>> IMAGE <<<"

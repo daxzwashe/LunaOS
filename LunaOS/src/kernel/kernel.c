@@ -7,6 +7,7 @@ extern const uint8_t font8x16[];
 extern const uint8_t* GetCharBitmap(char c); 
 extern void InitGDT();
 extern void InitIDT();
+extern void InitTimer(uint32_t frequency);
 extern void InitMouse();
 
 extern void PMM_Init(MemoryInfo* memInfo);
@@ -19,6 +20,7 @@ extern void Heap_Init(void* startAddress, size_t sizeBytes);
 extern void* malloc(size_t size);
 extern void free(void* ptr);
 extern void PCI_Scan();
+extern void RunAppleApp(void);
 
 // Глобальные
 Framebuffer* GlobalFB;
@@ -125,7 +127,7 @@ void OnBackspace() {
 }
 void ExecuteCommand() {
     kprint("\n");
-    if (strcmp(CommandBuffer, "help") == 0) kprint("Commands: help, clear, info, memory, malloc, pci");
+    if (strcmp(CommandBuffer, "help") == 0) kprint("Commands: help, clear, info, memory, malloc, pci, apple");
     else if (strcmp(CommandBuffer, "clear") == 0) { ClearScreen(ColorBG); kprint("LunaOS Kernel v1.6\n"); }
     else if (strcmp(CommandBuffer, "memory") == 0) {
         kprint("Free RAM: "); kprintInt(PMM_GetFreeMemory() / 1024 / 1024); kprint(" MB\n");
@@ -139,6 +141,9 @@ void ExecuteCommand() {
     else if (strcmp(CommandBuffer, "pci") == 0) {
         PCI_Scan();
     }
+    else if (strcmp(CommandBuffer, "apple") == 0) {
+        RunAppleApp();
+    }
     else kprint("Unknown command.");
     ClearBuffer();
     kprint("\nLunaOS> ");
@@ -151,18 +156,14 @@ void OnKeyPress(char c) {
 void KernelStart(BootInfo* bootInfo) {
     GlobalFB = bootInfo->fb;
     ClearScreen(ColorBG);
+    
     kprint("[ OK ] GDT Loaded\n"); InitGDT();
     kprint("[ OK ] IDT Loaded\n"); InitIDT();
     kprint("[ OK ] Mouse Loaded\n"); InitMouse();
     kprint("[ .. ] PMM Init... "); PMM_Init(bootInfo->memInfo); kprint("[ OK ]\n");
-    
-    // HEAP Init
-    kprint("[ .. ] Heap Init... ");
-    void* heapStart = (void*)0x10000000;
-    Heap_Init(heapStart, 100 * 1024 * 1024);
-    kprint("[ OK ]\n");
-
+    kprint("[ .. ] Heap Init... "); Heap_Init((void*)0x10000000, 100 * 1024 * 1024); kprint("[ OK ]\n");
     kprint("\nWelcome to LunaOS.\nType 'pci' to scan hardware.\n\n");
     kprint("LunaOS> ");
+
     while(1) { __asm__ volatile("hlt"); }
 }
